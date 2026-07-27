@@ -11,6 +11,10 @@ node_modules
 dist
 dist-ssr
 *.local
+deploy-*.json
+.deploy-payload.json
+_deploy_files.json
+_mcp_args.json
 
 # Editor directories and files
 .vscode/*
