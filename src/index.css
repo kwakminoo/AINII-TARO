@@ -1,14 +1,26 @@
+@font-face {
+  font-family: 'KCCMurukmuruk';
+  src:
+    url('/fonts/KCC-Murukmuruk.woff2') format('woff2'),
+    url('/fonts/KCC-Murukmuruk.woff') format('woff'),
+    url('/fonts/KCC-Murukmuruk.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --bg0: #1a0b2e;
-  --bg1: #3b1d6b;
-  --bg2: #6b2d8b;
-  --ink: #fff8ff;
-  --muted: #dcc7f0;
-  --gold: #f0c75e;
-  --cloud: #e8d4ff;
-  --accent-red: #e23b4a;
+  --bg0: #1a0f2e;
+  --bg1: #2b154b;
+  --ink: #ffffff;
+  --muted: #d4c4e8;
+  --gold: #ffbd1e;
+  --gold-deep: #f3a72e;
+  --lavender: #e8d4ff;
+  --btn-text: #6b3d9a;
+  --cyan: #5ef0ff;
   --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-  font-family: 'Pretendard', 'Noto Sans KR', system-ui, sans-serif;
+  font-family: 'KCCMurukmuruk', 'Noto Sans KR', sans-serif;
   color: var(--ink);
   background: var(--bg0);
   line-height: 1.45;
@@ -26,18 +38,18 @@ body,
 #root {
   margin: 0;
   min-height: 100%;
+  height: 100%;
 }
 
 body {
   min-height: 100dvh;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, #7a3bb8 0%, transparent 55%),
-    radial-gradient(circle at 20% 80%, rgba(226, 59, 74, 0.18), transparent 40%),
-    linear-gradient(180deg, #241044 0%, #12061f 100%);
+  background: #0d0818;
+  overflow: hidden;
 }
 
 button,
-textarea {
+textarea,
+input {
   font: inherit;
 }
 

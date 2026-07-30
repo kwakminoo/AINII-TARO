@@ -8,7 +8,14 @@ import {
 } from './data/fortunes'
 import './App.css'
 
-type Screen = 'home' | 'shuffle' | 'select' | 'reveal' | 'result' | 'ai'
+type Screen =
+  | 'home'
+  | 'shuffle'
+  | 'select'
+  | 'reveal'
+  | 'preview'
+  | 'result'
+  | 'ai'
 
 const SHUFFLE_LINES = [
   '승리의 기운을 불러오는 중...',
@@ -16,8 +23,10 @@ const SHUFFLE_LINES = [
   '승리 타로를 섞는 중...',
 ]
 
+const AI_CHIPS = ['인천 선제골', '포항전 역전', '오늘 응원 열기']
+
 const COUNTER_KEY = 'ainii-taro-draws'
-const BASE_COUNT = 1284
+const BASE_COUNT = 100
 
 function readCounter(): number {
   try {
@@ -38,12 +47,29 @@ function bumpCounter(): number {
   return next
 }
 
-function AeniSlot({ note }: { note?: string }) {
+function ImgBtn({
+  src,
+  alt,
+  onClick,
+  disabled,
+  className = '',
+}: {
+  src: string
+  alt: string
+  onClick?: () => void
+  disabled?: boolean
+  className?: string
+}) {
   return (
-    <div className="aeni-slot" aria-hidden="true">
-      <div className="aeni-slot__ring" />
-      <p className="aeni-slot__label">{note ?? '애이니 이미지 예정'}</p>
-    </div>
+    <button
+      type="button"
+      className={`img-btn ${className}`}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={alt}
+    >
+      <img src={src} alt="" draggable={false} />
+    </button>
   )
 }
 
@@ -62,6 +88,11 @@ export default function App() {
   useEffect(() => {
     setLocalDraws(readCounter())
   }, [])
+
+  useEffect(() => {
+    const el = document.querySelector('.stage-scroll')
+    if (el) el.scrollTop = 0
+  }, [screen])
 
   useEffect(() => {
     if (screen !== 'shuffle') return
@@ -83,7 +114,7 @@ export default function App() {
 
   useEffect(() => {
     if (screen !== 'reveal' || !picked) return
-    const t = window.setTimeout(() => setScreen('result'), 1600)
+    const t = window.setTimeout(() => setScreen('preview'), 1800)
     return () => window.clearTimeout(t)
   }, [screen, picked])
 
@@ -117,157 +148,242 @@ export default function App() {
     setPercent(r.percent)
     setAiLine(r.line)
     setLocalDraws(bumpCounter())
-    setScreen('result')
+    setScreen('preview')
   }
 
   return (
     <div className="app">
       <div className="stage">
+        <div className="stage-scroll">
         {screen === 'home' && (
           <section className="panel home" aria-label="메인">
-            <p className="eyebrow">애이니의 쪽집게 AI 타로 운세</p>
-            <h1 className="title">
-              오늘 나에게 들어온
-              <br />
-              승리의 기운은?
-            </h1>
-            <AeniSlot />
-            <p className="lead">
-              가상 AI 애이니 점술가가 오늘의 승리 타로를 준비했습니다.
-              <br />
-              선제골 · 역전 · 철벽 수비 · 응원 열기 중
-              <br />
-              오늘 가장 강하게 들어온 승리운을 판독합니다.
-            </p>
+            <header className="hero-copy">
+              <p className="brand-line">애이니의 쪽집게</p>
+              <h1 className="brand-title">AI 타로 운세</h1>
+              <p className="hero-q">오늘 나에게 들어온 승리의 기운은?</p>
+            </header>
+            <img
+              className="aeny aeny-home"
+              src="/assets/aeny-home.png"
+              alt="애이니"
+              draggable={false}
+            />
+            <div className="cta-stack">
+              <ImgBtn
+                src="/assets/btn-draw.png"
+                alt="승리 타로 뽑기"
+                onClick={startDraw}
+              />
+              <ImgBtn
+                src="/assets/btn-ask-alt.png"
+                alt="질문으로 승부운 보기"
+                onClick={() => setScreen('ai')}
+              />
+            </div>
             <p className="counter">
-              지금까지 <strong>{totalShown.toLocaleString('ko-KR')}</strong>명이
-              승리의 기운을 확인했어요
+              *지금까지 <strong>{totalShown.toLocaleString('ko-KR')}</strong>명이
+              승리의 기운을 확인했어요*
             </p>
-            <button type="button" className="btn btn-cloud" onClick={startDraw}>
-              승리 타로 뽑기
-            </button>
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => setScreen('ai')}
-            >
-              문구로 운세 보기
-            </button>
           </section>
         )}
 
         {screen === 'shuffle' && (
           <section className="panel shuffle" aria-live="polite">
-            <p className="eyebrow">STEP 1</p>
-            <h2 className="title sm">
+            <p className="step">STEP 1</p>
+            <h2 className="step-title">
               경기 시작 전,
               <br />
               당신에게 찾아온 승리의 기운은?
             </h2>
-            <AeniSlot note="카드 섞는 중..." />
+            <img
+              className="aeny aeny-table"
+              src="/assets/aeny-table-char.png"
+              alt=""
+              draggable={false}
+            />
             <div className="shuffle-cards" aria-hidden="true">
               {[0, 1, 2, 3].map((i) => (
-                <div key={i} className={`card-back float f${i}`} />
+                <img
+                  key={i}
+                  className={`card-back float f${i}`}
+                  src="/assets/card-back.png"
+                  alt=""
+                  draggable={false}
+                />
               ))}
             </div>
             <p className="status">{shuffleLine}</p>
-            <p className="hint">카드를 섞고 있으니 잠시 기다려 주세요.</p>
+            <p className="hint blink">*카드를 섞고 있으니 잠시 기다려주세요*</p>
           </section>
         )}
 
         {screen === 'select' && (
           <section className="panel select">
-            <p className="eyebrow">STEP 2–3</p>
-            <h2 className="title sm">가장 끌리는 카드 한 장을 선택하세요</h2>
-            <p className="status ready">네 장의 카드가 준비되었습니다</p>
+            <p className="step">STEP 2</p>
+            <h2 className="step-title">카드를 한 장 선택해주세요</h2>
             <div className="card-fan" role="list">
               {deck.map((card, idx) => (
                 <button
                   key={card.id}
                   type="button"
-                  className={`card-back pick p${idx}`}
+                  className={`card-pick p${idx}`}
                   role="listitem"
                   aria-label={`승리 타로 카드 ${idx + 1}`}
                   onClick={() => chooseCard(card)}
-                />
+                >
+                  <img src="/assets/card-back.png" alt="" draggable={false} />
+                </button>
               ))}
             </div>
-            <p className="hint">애이니가 카드를 섞어 제시했어요</p>
+            <p className="hint">승리의 기운이 담긴 카드가 준비되었습니다.</p>
           </section>
         )}
 
         {screen === 'reveal' && picked && (
           <section className="panel reveal" aria-live="polite">
-            <div className="burst" aria-hidden="true" />
-            <div
-              className="card-face rising"
-              style={{ borderColor: picked.accent }}
-            >
-              <span className="card-face__tag">VICTORY TAROT</span>
-              <strong>{picked.title}</strong>
-              <span>{picked.subtitle}</span>
+            <p className="step">STEP 3</p>
+            <div className="reveal-stage">
+              <img
+                className="sunburst"
+                src="/assets/sunburst.png"
+                alt=""
+                draggable={false}
+              />
+              <img
+                className="card-rising"
+                src="/assets/card-back.png"
+                alt=""
+                draggable={false}
+              />
             </div>
             <p className="status">
               선택한 카드에 승리의 기운이 모이고 있습니다.
               <br />
               오늘의 승리운을 공개합니다.
             </p>
+            <div className="reveal-rest" aria-hidden="true">
+              {[0, 1, 2].map((i) => (
+                <img
+                  key={i}
+                  src="/assets/card-back.png"
+                  alt=""
+                  draggable={false}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {screen === 'preview' && picked && (
+          <section className="panel preview">
+            <img
+              className="title-today"
+              src="/assets/title-today.png"
+              alt="오늘의 승리운"
+              draggable={false}
+            />
+            <img
+              className="fortune-card"
+              src={picked.cardImg}
+              alt={`${picked.title} — ${picked.subtitle}`}
+              draggable={false}
+            />
+            <ImgBtn
+              src="/assets/btn-result.png"
+              alt="결과 보기"
+              onClick={() => setScreen('result')}
+            />
           </section>
         )}
 
         {screen === 'result' && picked && (
           <section className="panel result">
-            <div className="scroll">
-              <p className="eyebrow">오늘의 승리운</p>
-              <div
-                className="card-face mini"
-                style={{ borderColor: picked.accent }}
-              >
-                <strong>{picked.title}</strong>
-              </div>
-              <p className="percent" style={{ color: picked.accent }}>
-                운수 <strong>{percent}%</strong>
+            <div className="result-sheet">
+              <img
+                className="result-card-mini"
+                src={picked.cardMiniImg}
+                alt={picked.title}
+                draggable={false}
+              />
+              <p className="result-label">오늘의 승리운 지수</p>
+              <p className="result-percent" style={{ color: '#5a2d8a' }}>
+                <span className="star">✦</span>
+                <strong>{percent}%</strong>
+                <span className="star">✦</span>
               </p>
-              <p className="blurb">{aiLine || picked.blurb}</p>
+              <p className="result-blurb">{aiLine || picked.blurb}</p>
+              <div className="cheer-wrap">
+                <p className="cheer-badge">✦ 오늘의 응원주문 ✦</p>
+                <blockquote className="cheer-bubble">
+                  {picked.cheer.split('\n').map((line) => (
+                    <span key={line}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
+                </blockquote>
+              </div>
             </div>
-            <button type="button" className="btn btn-cloud" onClick={resetHome}>
-              돌아가기
-            </button>
+            <ImgBtn
+              src="/assets/btn-back.png"
+              alt="돌아가기"
+              onClick={resetHome}
+            />
           </section>
         )}
 
         {screen === 'ai' && (
           <section className="panel ai">
-            <p className="eyebrow">추가 운세</p>
-            <h2 className="title sm">
-              문구를 넣으면
-              <br />
-              오늘의 기운을 읽어드려요
-            </h2>
-            <AeniSlot note="키워드 점술" />
+            <header className="hero-copy">
+              <h1 className="brand-title sm">질문으로 승부운 보기</h1>
+              <p className="hero-q">
+                애이니에게 질문하면
+                <br />
+                오늘의 기운을 읽어드려요
+              </p>
+            </header>
+            <div className="ai-stage">
+              <img
+                className="aeny aeny-ask"
+                src="/assets/aeny-home.png"
+                alt="애이니"
+                draggable={false}
+              />
+              <ul className="ai-chips" aria-label="예시 질문">
+                {AI_CHIPS.map((chip) => (
+                  <li key={chip}>
+                    <button
+                      type="button"
+                      onClick={() => setAiText(chip)}
+                    >
+                      {chip}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <label className="field">
-              <span className="sr-only">운세 문구</span>
+              <span className="sr-only">질문 입력</span>
               <textarea
                 value={aiText}
                 onChange={(e) => setAiText(e.target.value)}
-                placeholder="예: 인천 선제골, 포항전 역전, 오늘 응원 열기..."
-                rows={3}
+                placeholder="질문을 입력해주세요."
+                rows={2}
                 maxLength={120}
               />
             </label>
-            <button
-              type="button"
-              className="btn btn-cloud"
+            <ImgBtn
+              src="/assets/btn-read.png"
+              alt="기운 판독하기"
               onClick={runAiPredict}
               disabled={!aiText.trim()}
-            >
-              기운 판독하기
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={resetHome}>
+            />
+            <button type="button" className="link-back" onClick={resetHome}>
               돌아가기
             </button>
           </section>
         )}
+        </div>
       </div>
     </div>
   )
