@@ -6,6 +6,7 @@ import {
   predictFromText,
   shuffledFortunes,
 } from './data/fortunes'
+import { asset } from './lib/assets'
 import './App.css'
 
 type Screen =
@@ -164,18 +165,18 @@ export default function App() {
             </header>
             <img
               className="aeny aeny-home"
-              src="/assets/aeny-home.png"
+              src={asset("/assets/aeny-home.png")}
               alt="애이니"
               draggable={false}
             />
             <div className="cta-stack">
               <ImgBtn
-                src="/assets/btn-draw.png"
+                src={asset("/assets/btn-draw.png")}
                 alt="승리 타로 뽑기"
                 onClick={startDraw}
               />
               <ImgBtn
-                src="/assets/btn-ask-alt.png"
+                src={asset("/assets/btn-ask-alt.png")}
                 alt="질문으로 승부운 보기"
                 onClick={() => setScreen('ai')}
               />
@@ -197,7 +198,7 @@ export default function App() {
             </h2>
             <img
               className="aeny aeny-table"
-              src="/assets/aeny-table-char.png"
+              src={asset("/assets/aeny-table-char.png")}
               alt=""
               draggable={false}
             />
@@ -206,7 +207,7 @@ export default function App() {
                 <img
                   key={i}
                   className={`card-back float f${i}`}
-                  src="/assets/card-back.png"
+                  src={asset("/assets/card-back.png")}
                   alt=""
                   draggable={false}
                 />
@@ -231,7 +232,7 @@ export default function App() {
                   aria-label={`승리 타로 카드 ${idx + 1}`}
                   onClick={() => chooseCard(card)}
                 >
-                  <img src="/assets/card-back.png" alt="" draggable={false} />
+                  <img src={asset("/assets/card-back.png")} alt="" draggable={false} />
                 </button>
               ))}
             </div>
@@ -245,13 +246,13 @@ export default function App() {
             <div className="reveal-stage">
               <img
                 className="sunburst"
-                src="/assets/sunburst.png"
+                src={asset("/assets/sunburst.png")}
                 alt=""
                 draggable={false}
               />
               <img
                 className="card-rising"
-                src="/assets/card-back.png"
+                src={asset("/assets/card-back.png")}
                 alt=""
                 draggable={false}
               />
@@ -265,7 +266,7 @@ export default function App() {
               {[0, 1, 2].map((i) => (
                 <img
                   key={i}
-                  src="/assets/card-back.png"
+                  src={asset("/assets/card-back.png")}
                   alt=""
                   draggable={false}
                 />
@@ -278,7 +279,7 @@ export default function App() {
           <section className="panel preview">
             <img
               className="title-today"
-              src="/assets/title-today.png"
+              src={asset("/assets/title-today.png")}
               alt="오늘의 승리운"
               draggable={false}
             />
@@ -289,7 +290,7 @@ export default function App() {
               draggable={false}
             />
             <ImgBtn
-              src="/assets/btn-result.png"
+              src={asset("/assets/btn-result.png")}
               alt="결과 보기"
               onClick={() => setScreen('result')}
             />
@@ -325,7 +326,7 @@ export default function App() {
               </div>
             </div>
             <ImgBtn
-              src="/assets/btn-back.png"
+              src={asset("/assets/btn-back.png")}
               alt="돌아가기"
               onClick={resetHome}
             />
@@ -345,7 +346,7 @@ export default function App() {
             <div className="ai-stage">
               <img
                 className="aeny aeny-ask"
-                src="/assets/aeny-home.png"
+                src={asset("/assets/aeny-home.png")}
                 alt="애이니"
                 draggable={false}
               />
@@ -373,7 +374,7 @@ export default function App() {
               />
             </label>
             <ImgBtn
-              src="/assets/btn-read.png"
+              src={asset("/assets/btn-read.png")}
               alt="기운 판독하기"
               onClick={runAiPredict}
               disabled={!aiText.trim()}

@@ -1,3 +1,5 @@
+import { asset } from '../lib/assets'
+
 export type FortuneId = 'opener' | 'comeback' | 'defense' | 'cheer'
 
 export type Fortune = {
@@ -23,8 +25,8 @@ export const FORTUNES: Fortune[] = [
     cheer: '오늘 승리의 조건\n이 정도면 충분해',
     percentRange: [80, 92],
     accent: '#ff6b4a',
-    cardImg: '/assets/fortune-opener.png',
-    cardMiniImg: '/assets/fortune-opener-mini.png',
+    cardImg: asset('/assets/fortune-opener.png'),
+    cardMiniImg: asset('/assets/fortune-opener-mini.png'),
   },
   {
     id: 'comeback',
@@ -35,8 +37,8 @@ export const FORTUNES: Fortune[] = [
     cheer: '다시 일어서서\n끝까지 싸워서 승리하자',
     percentRange: [88, 96],
     accent: '#ffd166',
-    cardImg: '/assets/fortune-comeback.png',
-    cardMiniImg: '/assets/fortune-comeback-mini.png',
+    cardImg: asset('/assets/fortune-comeback.png'),
+    cardMiniImg: asset('/assets/fortune-comeback-mini.png'),
   },
   {
     id: 'defense',
@@ -47,8 +49,8 @@ export const FORTUNES: Fortune[] = [
     cheer: '시간이 흘러도 우리는\n언제나 네 곁에 있을게',
     percentRange: [78, 90],
     accent: '#7ec8ff',
-    cardImg: '/assets/fortune-defense.png',
-    cardMiniImg: '/assets/fortune-defense-mini.png',
+    cardImg: asset('/assets/fortune-defense.png'),
+    cardMiniImg: asset('/assets/fortune-defense-mini.png'),
   },
   {
     id: 'cheer',
@@ -59,8 +61,8 @@ export const FORTUNES: Fortune[] = [
     cheer: '오늘만은 다 잊고\n외쳐보자 부르자!',
     percentRange: [84, 94],
     accent: '#c77dff',
-    cardImg: '/assets/fortune-cheer.png',
-    cardMiniImg: '/assets/fortune-cheer-mini.png',
+    cardImg: asset('/assets/fortune-cheer.png'),
+    cardMiniImg: asset('/assets/fortune-cheer-mini.png'),
   },
 ]
 
