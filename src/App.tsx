@@ -15,7 +15,6 @@ type Screen =
   | 'select'
   | 'reveal'
   | 'preview'
-  | 'result'
   | 'ai'
 
 const SHUFFLE_LINES = [
@@ -25,6 +24,9 @@ const SHUFFLE_LINES = [
 ]
 
 const AI_CHIPS = ['인천 선제골', '포항전 역전', '오늘 응원 열기']
+
+/** 카드 선택 후, 승리운 공개 직전 — 카드가 위에 뜨는 로딩 시간(초) */
+const REVEAL_LOADING_SEC = 3
 
 const COUNTER_KEY = 'ainii-taro-draws'
 const BASE_COUNT = 100
@@ -80,9 +82,12 @@ export default function App() {
   const [shuffleLine, setShuffleLine] = useState(SHUFFLE_LINES[0])
   const [deck, setDeck] = useState<Fortune[]>(FORTUNES)
   const [picked, setPicked] = useState<Fortune | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [percent, setPercent] = useState(0)
   const [aiText, setAiText] = useState('')
   const [aiLine, setAiLine] = useState('')
+  const [sceneFx, setSceneFx] = useState<'idle' | 'fade'>('idle')
+  const [showResult, setShowResult] = useState(false)
 
   const totalShown = useMemo(() => BASE_COUNT + localDraws, [localDraws])
 
@@ -105,7 +110,7 @@ export default function App() {
     }, 900)
     const done = window.setTimeout(() => {
       setDeck(shuffledFortunes())
-      setScreen('select')
+      transitionTo('select')
     }, 2800)
     return () => {
       window.clearInterval(tick)
@@ -115,31 +120,52 @@ export default function App() {
 
   useEffect(() => {
     if (screen !== 'reveal' || !picked) return
-    const t = window.setTimeout(() => setScreen('preview'), 1800)
+    const t = window.setTimeout(
+      () => transitionTo('preview', 'none'),
+      REVEAL_LOADING_SEC * 1000,
+    )
     return () => window.clearTimeout(t)
   }, [screen, picked])
 
+  function transitionTo(next: Screen, effect: 'fade' | 'none' = 'fade') {
+    if (effect === 'none') {
+      setScreen(next)
+      return
+    }
+    setSceneFx('fade')
+    window.setTimeout(() => setScreen(next), 220)
+    window.setTimeout(() => setSceneFx('idle'), 520)
+  }
+
   function startDraw() {
     setPicked(null)
+    setSelectedId(null)
     setPercent(0)
     setAiLine('')
-    setScreen('shuffle')
+    setShowResult(false)
+    transitionTo('shuffle')
   }
 
   function chooseCard(card: Fortune) {
+    if (selectedId) return
     const p = pickPercent(card.percentRange)
-    setPicked(card)
-    setPercent(p)
-    setLocalDraws(bumpCounter())
-    setScreen('reveal')
+    setSelectedId(card.id)
+    window.setTimeout(() => {
+      setPicked(card)
+      setPercent(p)
+      setLocalDraws(bumpCounter())
+      transitionTo('reveal')
+    }, 1150)
   }
 
   function resetHome() {
     setPicked(null)
+    setSelectedId(null)
     setPercent(0)
     setAiText('')
     setAiLine('')
-    setScreen('home')
+    setShowResult(false)
+    transitionTo('home')
   }
 
   function runAiPredict() {
@@ -149,15 +175,23 @@ export default function App() {
     setPercent(r.percent)
     setAiLine(r.line)
     setLocalDraws(bumpCounter())
-    setScreen('preview')
+    setShowResult(false)
+    transitionTo('preview')
   }
 
   return (
     <div className="app">
-      <div className="stage">
+      <div className={`stage ${sceneFx !== 'idle' ? `scene-${sceneFx}` : ''}`}>
+        <div className="scene-overlay" aria-hidden="true" />
         <div className="stage-scroll">
         {screen === 'home' && (
           <section className="panel home" aria-label="메인">
+            <img
+              className="panel-halo halo-home"
+              src={asset("/assets/sunburst.png")}
+              alt=""
+              draggable={false}
+            />
             <header className="hero-copy">
               <p className="brand-line">애이니의 쪽집게</p>
               <h1 className="brand-title">AI 타로 운세</h1>
@@ -190,31 +224,27 @@ export default function App() {
 
         {screen === 'shuffle' && (
           <section className="panel shuffle" aria-live="polite">
-            <p className="step">STEP 1</p>
-            <h2 className="step-title">
-              경기 시작 전,
-              <br />
-              당신에게 찾아온 승리의 기운은?
-            </h2>
             <img
-              className="aeny aeny-table"
-              src={asset("/assets/aeny-table-char.png")}
+              className="shuffle-scene"
+              src={asset("/assets/aeny-table.png")}
               alt=""
               draggable={false}
             />
-            <div className="shuffle-cards" aria-hidden="true">
-              {[0, 1, 2, 3].map((i) => (
-                <img
-                  key={i}
-                  className={`card-back float f${i}`}
-                  src={asset("/assets/card-back.png")}
-                  alt=""
-                  draggable={false}
-                />
-              ))}
+            <div className="shuffle-overlay">
+              <div className="shuffle-cards" aria-hidden="true">
+                {[0, 1, 2, 3].map((i) => (
+                  <img
+                    key={i}
+                    className={`card-back float f${i}`}
+                    src={asset("/assets/card-back.png")}
+                    alt=""
+                    draggable={false}
+                  />
+                ))}
+              </div>
+              <p className="status">{shuffleLine}</p>
+              <p className="hint blink">*카드를 섞고 있으니 잠시 기다려주세요*</p>
             </div>
-            <p className="status">{shuffleLine}</p>
-            <p className="hint blink">*카드를 섞고 있으니 잠시 기다려주세요*</p>
           </section>
         )}
 
@@ -222,21 +252,46 @@ export default function App() {
           <section className="panel select">
             <p className="step">STEP 2</p>
             <h2 className="step-title">카드를 한 장 선택해주세요</h2>
+            <img
+              className="aeny aeny-select"
+              src={asset("/assets/aeny-home.png")}
+              alt="애이니"
+              draggable={false}
+            />
             <div className="card-fan" role="list">
               {deck.map((card, idx) => (
                 <button
                   key={card.id}
                   type="button"
-                  className={`card-pick p${idx}`}
+                  className={`card-pick p${idx} ${
+                    selectedId === card.id
+                      ? 'is-picked'
+                      : selectedId
+                        ? 'is-dimmed'
+                        : ''
+                  }`}
                   role="listitem"
                   aria-label={`승리 타로 카드 ${idx + 1}`}
                   onClick={() => chooseCard(card)}
+                  disabled={Boolean(selectedId)}
                 >
+                  {selectedId === card.id && (
+                    <img
+                      className="pick-glow"
+                      src={asset("/assets/sunburst.png")}
+                      alt=""
+                      draggable={false}
+                    />
+                  )}
                   <img src={asset("/assets/card-back.png")} alt="" draggable={false} />
                 </button>
               ))}
             </div>
-            <p className="hint">승리의 기운이 담긴 카드가 준비되었습니다.</p>
+            <p className="hint">
+              {selectedId
+                ? '승리의 기운을 읽는 중입니다...'
+                : '승리의 기운이 담긴 카드가 준비되었습니다.'}
+            </p>
           </section>
         )}
 
@@ -276,60 +331,63 @@ export default function App() {
         )}
 
         {screen === 'preview' && picked && (
-          <section className="panel preview">
+          <section
+            className={`panel preview${showResult ? ' is-result' : ''}`}
+          >
+            <img
+              className="panel-halo halo-preview"
+              src={asset("/assets/sunburst.png")}
+              alt=""
+              draggable={false}
+            />
             <img
               className="title-today"
               src={asset("/assets/title-today.png")}
               alt="오늘의 승리운"
               draggable={false}
             />
-            <img
-              className="fortune-card"
-              src={picked.cardImg}
-              alt={`${picked.title} — ${picked.subtitle}`}
-              draggable={false}
-            />
-            <ImgBtn
-              src={asset("/assets/btn-result.png")}
-              alt="결과 보기"
-              onClick={() => setScreen('result')}
-            />
-          </section>
-        )}
-
-        {screen === 'result' && picked && (
-          <section className="panel result">
-            <div className="result-sheet">
+            <div className="result-body">
               <img
-                className="result-card-mini"
-                src={picked.cardMiniImg}
-                alt={picked.title}
+                className="fortune-card"
+                src={picked.cardImg}
+                alt={`${picked.title} — ${picked.subtitle}`}
                 draggable={false}
               />
-              <p className="result-label">오늘의 승리운 지수</p>
-              <p className="result-percent" style={{ color: '#5a2d8a' }}>
-                <span className="star">✦</span>
-                <strong>{percent}%</strong>
-                <span className="star">✦</span>
-              </p>
-              <p className="result-blurb">{aiLine || picked.blurb}</p>
-              <div className="cheer-wrap">
-                <p className="cheer-badge">✦ 오늘의 응원주문 ✦</p>
-                <blockquote className="cheer-bubble">
-                  {picked.cheer.split('\n').map((line) => (
-                    <span key={line}>
-                      {line}
-                      <br />
-                    </span>
-                  ))}
-                </blockquote>
+              <div className="result-sheet" aria-hidden={!showResult}>
+                <p className="result-label">오늘의 승리운 지수</p>
+                <p className="result-percent" style={{ color: '#5a2d8a' }}>
+                  <span className="star">✦</span>
+                  <strong>{percent}%</strong>
+                  <span className="star">✦</span>
+                </p>
+                <p className="result-blurb">{aiLine || picked.blurb}</p>
+                <div className="cheer-wrap">
+                  <p className="cheer-badge">✦ 오늘의 응원주문 ✦</p>
+                  <blockquote className="cheer-bubble">
+                    {picked.cheer.split('\n').map((line) => (
+                      <span key={line}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                  </blockquote>
+                </div>
               </div>
             </div>
-            <ImgBtn
-              src={asset("/assets/btn-back.png")}
-              alt="돌아가기"
-              onClick={resetHome}
-            />
+            {!showResult ? (
+              <ImgBtn
+                src={asset("/assets/btn-result.png")}
+                alt="결과 보기"
+                onClick={() => setShowResult(true)}
+              />
+            ) : (
+              <ImgBtn
+                className="btn-back-result"
+                src={asset("/assets/btn-back.png")}
+                alt="돌아가기"
+                onClick={resetHome}
+              />
+            )}
           </section>
         )}
 

@@ -11,6 +11,22 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('/fonts/Paperlogy-4Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Paperlogy';
+  src: url('/fonts/Paperlogy-5Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg0: #1a0f2e;
   --bg1: #2b154b;
