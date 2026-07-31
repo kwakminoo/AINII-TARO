@@ -1,11 +1,13 @@
+/* 프로덕션: CDN 우선 — Vercel에 폰트 파일이 없어도(또는 SPA rewrite로 HTML이 와도) 폰트가 로드됨 */
 @font-face {
   font-family: 'KCCMurukmuruk';
   src:
-    url('/fonts/KCC-Murukmuruk.woff2') format('woff2'),
     url('https://cdn.jsdelivr.net/gh/kwakminoo/AINII-TARO@main/public/fonts/KCC-Murukmuruk.woff2')
       format('woff2'),
-    url('/fonts/KCC-Murukmuruk.woff') format('woff'),
-    url('/fonts/KCC-Murukmuruk.ttf') format('truetype');
+    url('/fonts/KCC-Murukmuruk.woff2') format('woff2'),
+    url('https://cdn.jsdelivr.net/gh/kwakminoo/AINII-TARO@main/public/fonts/KCC-Murukmuruk.woff')
+      format('woff'),
+    url('/fonts/KCC-Murukmuruk.woff') format('woff');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -14,9 +16,9 @@
 @font-face {
   font-family: 'Paperlogy';
   src:
-    url('/fonts/Paperlogy-4Regular.ttf') format('truetype'),
     url('https://cdn.jsdelivr.net/gh/kwakminoo/AINII-TARO@main/public/fonts/Paperlogy-4Regular.ttf')
-      format('truetype');
+      format('truetype'),
+    url('/fonts/Paperlogy-4Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -25,9 +27,9 @@
 @font-face {
   font-family: 'Paperlogy';
   src:
-    url('/fonts/Paperlogy-5Medium.ttf') format('truetype'),
     url('https://cdn.jsdelivr.net/gh/kwakminoo/AINII-TARO@main/public/fonts/Paperlogy-5Medium.ttf')
-      format('truetype');
+      format('truetype'),
+    url('/fonts/Paperlogy-5Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
